@@ -88,7 +88,7 @@ function renderProspects() {
     return;
   }
 
-  prospects.forEach(prospect => {
+  prospects.forEach((prospect, index) => {
 
     const row = document.createElement("div");
 
@@ -102,8 +102,8 @@ function renderProspects() {
 
     row.innerHTML = `
       <div class="prospect-email">
-        ${escapeHtml(prospect.email)}
-      </div>
+  ${index + 1}. ${escapeHtml(prospect.email)}
+</div>
 
       <div class="prospect-actions">
 

@@ -448,6 +448,70 @@ app.post("/api/prospects", async (req, res) => {
 |--------------------------------------------------------------------------
 */
 
+app.get("/api/prospects/stats", async (req, res) => {
+  try {
+
+    const { data, error } = await supabase
+      .from("prospects")
+      .select("status, sent_at");
+
+    if (error) {
+      throw error;
+    }
+
+    const allProspects = data || [];
+
+    const sent = allProspects.filter(
+      prospect => prospect.status === "sent"
+    ).length;
+
+    const remaining = allProspects.filter(
+      prospect => prospect.status !== "sent"
+    ).length;
+
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Africa/Lagos",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+
+    const sentToday = allProspects.filter(prospect => {
+
+      if (!prospect.sent_at) {
+        return false;
+      }
+
+      const sentDate = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Africa/Lagos",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date(prospect.sent_at));
+
+      return sentDate === today;
+
+    }).length;
+
+    res.json({
+      success: true,
+      sent: sent,
+      remaining: remaining,
+      sentToday: sentToday
+    });
+
+  } catch (error) {
+
+    console.error("Stats error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+});
+
 /*
 |--------------------------------------------------------------------------
 | Clear prospect list
