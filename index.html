@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Mercy Outreach Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div>
+        <h1>Mercy Outreach Dashboard</h1>
+        <p>Manage your outreach from one place.</p>
+      </div>
+    </header>
+
+
+    <main class="dashboard">
+
+      <!-- Gmail Accounts -->
+
+      <section class="card">
+
+        <div class="section-heading">
+          <div>
+            <h2>Gmail Account</h2>
+            <p>Choose the account you want to send from.</p>
+          </div>
+        </div>
+
+        <select id="senderSelect">
+          <option value="">Loading accounts...</option>
+        </select>
+
+      </section>
+
+
+      <!-- Statistics -->
+
+      <section class="stats-grid">
+
+        <div class="stat-card">
+          <span>Sent</span>
+          <strong id="sentCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Remaining</span>
+          <strong id="remainingCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Sent Today</span>
+          <strong id="sentTodayCount">0</strong>
+        </div>
+
+      </section>
+
+
+      <!-- Add Prospects -->
+
+      <section class="card">
+
+        <div class="section-heading">
+          <div>
+            <h2>Add Prospects</h2>
+            <p>Paste email addresses below.</p>
+          </div>
+        </div>
+
+        <textarea
+          id="prospectInput"
+          placeholder="example@email.com&#10;another@email.com&#10;third@email.com"
+        ></textarea>
+
+        <button id="addProspectsBtn" class="primary-btn">
+          Add Prospects
+        </button>
+
+        <p id="prospectMessage" class="message"></p>
+
+      </section>
+
+
+      <!-- Campaign -->
+
+      <section class="card campaign-card">
+
+        <div class="section-heading">
+          <div>
+            <h2>Campaign Editor</h2>
+            <p>Edit your email before sending.</p>
+          </div>
+        </div>
+
+        <label for="subjectInput">Subject</label>
+
+        <input
+          type="text"
+          id="subjectInput"
+          value="There’s an interesting opportunity here"
+        >
+
+        <label for="preheaderInput">Preheader</label>
+
+        <input
+          type="text"
+          id="preheaderInput"
+          value="The path to purchase matters more than it seems."
+        >
+
+        <label for="bodyInput">Email Body</label>
+
+        <textarea
+          id="bodyInput"
+          rows="12"
+          placeholder="Write or paste your email content here..."
+        ></textarea>
+
+        <button
+          type="button"
+          id="saveCampaignBtn"
+          class="primary-btn"
+        >
+          Save Campaign
+        </button>
+
+        <div id="campaignMessage"></div>
+
+      </section>
+
+
+      <!-- Prospects -->
+
+      <section class="card">
+
+        <div class="section-heading prospects-heading">
+
+          <div>
+            <h2>Prospects</h2>
+            <p>Send individually and track the result.</p>
+          </div>
+
+          <button
+            type="button"
+            id="clearProspectsBtn"
+            class="clear-btn"
+          >
+            Clear Prospect List
+          </button>
+
+        </div>
+
+        <div id="prospectList" class="prospect-list">
+
+          <div class="empty-state">
+            No prospects added yet.
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <script src="script.js"></script>
+  <script src="dashboard.js"></script>
+
+</body>
+</html>
