@@ -356,9 +356,9 @@ app.get("/api/prospects", async (req, res) => {
     const { data, error } = await supabase
       .from("prospects")
       .select("*")
-      .order("created_at", {
-        ascending: true
-      });
+      .order("id", {
+  ascending: true
+});
 
     if (error) {
       throw error;
@@ -1114,6 +1114,7 @@ function formatCampaignBody(body) {
 
   /*
    * Remove dangerous elements from pasted content.
+   * Keep the user's actual formatting intact.
    */
 
   html = html
@@ -1124,36 +1125,32 @@ function formatCampaignBody(body) {
     .replace(/\s*javascript\s*:/gi, "");
 
   /*
-   * Give normal paragraphs the same spacing
-   * as the existing Mercy email template.
+   * Keep spacing controlled by the email editor.
+   * We do NOT add automatic paragraph spacing.
    */
 
   html = html
     .replace(
       /<p(\s[^>]*)?>/gi,
-      '<p style="margin:0 0 24px 0;font-size:15px;line-height:1.8;color:#243447;">'
+      '<p style="margin:0;padding:0;font-size:15px;line-height:1.6;color:#243447;">'
     )
     .replace(
       /<div(\s[^>]*)?>/gi,
-      '<p style="margin:0 0 24px 0;font-size:15px;line-height:1.8;color:#243447;">'
-    )
-    .replace(
-      /<\/div>/gi,
-      "</p>"
+      '<div style="margin:0;padding:0;font-size:15px;line-height:1.6;color:#243447;">'
     );
 
   /*
-   * Keep unordered lists clean inside the email.
+   * Keep lists clean without adding large gaps.
    */
 
   html = html
     .replace(
       /<ul(\s[^>]*)?>/gi,
-      '<ul style="margin:0 0 24px 24px;padding:0;color:#243447;">'
+      '<ul style="margin:0;padding-left:24px;color:#243447;">'
     )
     .replace(
       /<ol(\s[^>]*)?>/gi,
-      '<ol style="margin:0 0 24px 24px;padding:0;color:#243447;">'
+      '<ol style="margin:0;padding-left:24px;color:#243447;">'
     );
 
   return html;

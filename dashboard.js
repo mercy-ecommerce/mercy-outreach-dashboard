@@ -457,47 +457,160 @@ function escapeHtml(value) {
 |--------------------------------------------------------------------------
 */
 
-function runEditorCommand(command, value = null) {
+let savedEditorSelection = null;
+
+function saveEditorSelection() {
 
   const editor =
     document.getElementById("bodyEditor");
 
+  if (!editor) {
+    return;
+  }
+
+  const selection =
+    window.getSelection();
+
+  if (!selection.rangeCount) {
+    return;
+  }
+
+  const range =
+    selection.getRangeAt(0);
+
+  if (
+    editor.contains(range.commonAncestorContainer)
+  ) {
+    savedEditorSelection =
+      range.cloneRange();
+  }
+}
+
+function restoreEditorSelection() {
+
+  const editor =
+    document.getElementById("bodyEditor");
+
+  if (!editor || !savedEditorSelection) {
+    return false;
+  }
+
+  const selection =
+    window.getSelection();
+
+  selection.removeAllRanges();
+
+  selection.addRange(
+    savedEditorSelection
+  );
+
   editor.focus();
+
+  return true;
+}
+
+function runEditorCommand(
+  command,
+  value = null
+) {
+
+  const editor =
+    document.getElementById("bodyEditor");
+
+  if (!editor) {
+    return;
+  }
+
+  restoreEditorSelection();
 
   document.execCommand(
     command,
     false,
     value
   );
+
+  saveEditorSelection();
+}
+
+const bodyEditor =
+  document.getElementById("bodyEditor");
+
+if (bodyEditor) {
+
+  bodyEditor.addEventListener(
+    "mouseup",
+    saveEditorSelection
+  );
+
+  bodyEditor.addEventListener(
+    "keyup",
+    saveEditorSelection
+  );
+
+  bodyEditor.addEventListener(
+    "input",
+    saveEditorSelection
+  );
+
 }
 
 document
   .querySelectorAll(".format-btn")
   .forEach(button => {
 
-    button.addEventListener("click", () => {
+    button.addEventListener(
+      "mousedown",
+      event => {
 
-      runEditorCommand(
-        button.dataset.command
-      );
+        event.preventDefault();
 
-    });
+        saveEditorSelection();
+
+      }
+    );
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        runEditorCommand(
+          button.dataset.command
+        );
+
+      }
+    );
 
   });
 
 const textColorPicker =
-  document.getElementById("textColorPicker");
+  document.getElementById(
+    "textColorPicker"
+  );
 
 if (textColorPicker) {
+
+  textColorPicker.addEventListener(
+    "mousedown",
+    () => {
+
+      saveEditorSelection();
+
+    }
+  );
 
   textColorPicker.addEventListener(
     "input",
     event => {
 
-      runEditorCommand(
+      restoreEditorSelection();
+
+      document.execCommand(
         "foreColor",
+        false,
         event.target.value
       );
+
+      saveEditorSelection();
 
     }
   );
@@ -505,18 +618,34 @@ if (textColorPicker) {
 }
 
 const highlightColorPicker =
-  document.getElementById("highlightColorPicker");
+  document.getElementById(
+    "highlightColorPicker"
+  );
 
 if (highlightColorPicker) {
+
+  highlightColorPicker.addEventListener(
+    "mousedown",
+    () => {
+
+      saveEditorSelection();
+
+    }
+  );
 
   highlightColorPicker.addEventListener(
     "input",
     event => {
 
-      runEditorCommand(
+      restoreEditorSelection();
+
+      document.execCommand(
         "hiliteColor",
+        false,
         event.target.value
       );
+
+      saveEditorSelection();
 
     }
   );
