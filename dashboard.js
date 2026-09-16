@@ -50,7 +50,12 @@ async function loadAccounts() {
 
 async function loadProspects() {
   try {
-    const response = await fetch(`${API_URL}/api/prospects`);
+    const response = await fetch(
+  `${API_URL}/api/prospects`,
+  {
+    cache: "no-store"
+  }
+);
     const result = await response.json();
 
     if (!result.success) {
@@ -297,7 +302,12 @@ async function loadStats() {
   try {
 
     const response =
-      await fetch(`${API_URL}/api/prospects/stats`);
+  await fetch(
+    `${API_URL}/api/prospects/stats`,
+    {
+      cache: "no-store"
+    }
+  );
 
     const result = await response.json();
 
@@ -346,23 +356,28 @@ async function sendProspect(email) {
   const preheader =
     document.getElementById("preheaderInput").value.trim();
 
+  const bodyEditor =
+    document.getElementById("bodyEditor");
+
   const body =
-    document.getElementById("bodyInput").value.trim();
+    bodyEditor.innerHTML.trim();
+
+  const bodyText =
+    bodyEditor.textContent.trim();
 
   if (!subject) {
     alert("Please enter an email subject.");
     return;
   }
 
-  if (!body) {
+  if (!bodyText) {
     alert("Please enter your email body.");
     return;
   }
 
-  const confirmed =
-    confirm(
-      `Send this email to ${email} from ${sender}?`
-    );
+  const confirmed = confirm(
+    `Send this email to ${email} from ${sender}?`
+  );
 
   if (!confirmed) {
     return;
@@ -374,6 +389,8 @@ async function sendProspect(email) {
       `${API_URL}/api/send`,
       {
         method: "POST",
+
+        cache: "no-store",
 
         headers: {
           "Content-Type": "application/json"
@@ -434,6 +451,78 @@ function escapeHtml(value) {
 |--------------------------------------------------------------------------
 */
 
+/*
+|--------------------------------------------------------------------------
+| Email editor formatting
+|--------------------------------------------------------------------------
+*/
+
+function runEditorCommand(command, value = null) {
+
+  const editor =
+    document.getElementById("bodyEditor");
+
+  editor.focus();
+
+  document.execCommand(
+    command,
+    false,
+    value
+  );
+}
+
+document
+  .querySelectorAll(".format-btn")
+  .forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      runEditorCommand(
+        button.dataset.command
+      );
+
+    });
+
+  });
+
+const textColorPicker =
+  document.getElementById("textColorPicker");
+
+if (textColorPicker) {
+
+  textColorPicker.addEventListener(
+    "input",
+    event => {
+
+      runEditorCommand(
+        "foreColor",
+        event.target.value
+      );
+
+    }
+  );
+
+}
+
+const highlightColorPicker =
+  document.getElementById("highlightColorPicker");
+
+if (highlightColorPicker) {
+
+  highlightColorPicker.addEventListener(
+    "input",
+    event => {
+
+      runEditorCommand(
+        "hiliteColor",
+        event.target.value
+      );
+
+    }
+  );
+
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
 
   document
@@ -467,7 +556,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           document.getElementById("preheaderInput").value,
 
         body:
-          document.getElementById("bodyInput").value
+  document.getElementById("bodyEditor").innerHTML
       };
 
       localStorage.setItem(
@@ -498,8 +587,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("preheaderInput").value =
       campaign.preheader;
 
-    document.getElementById("bodyInput").value =
-      campaign.body;
+    document.getElementById("bodyEditor").innerHTML =
+  campaign.body;
   }
 
 });

@@ -1032,31 +1032,48 @@ const html = `
      */
 
     const {
-      error: updateError
-    } = await supabase
-      .from("prospects")
-      .update({
-        status: "sent",
-        sender_email: account.email,
-        sent_at: new Date().toISOString(),
-        gmail_message_id: messageId
-      })
-      .eq("email", recipientEmail);
+  data: updatedProspect,
+  error: updateError
+} = await supabase
+  .from("prospects")
+  .update({
+    status: "sent",
+    sender_email: account.email,
+    sent_at: new Date().toISOString(),
+    gmail_message_id: messageId
+  })
+  .eq("email", recipientEmail)
+  .select("id, email, status, sender_email, sent_at, gmail_message_id")
+  .maybeSingle();
 
-    if (updateError) {
+if (updateError) {
 
-      console.error(
-        "Email sent but prospect tracking failed:",
-        updateError
-      );
+  console.error(
+    "Email sent but prospect tracking failed:",
+    updateError
+  );
 
-      return res.status(500).json({
-        success: false,
-        message:
-          "Email was sent successfully, but the prospect could not be marked as sent.",
-        messageId: messageId
-      });
-    }
+  return res.status(500).json({
+    success: false,
+    message:
+      "Email was sent successfully, but the prospect could not be marked as sent.",
+    messageId: messageId
+  });
+}
+
+if (!updatedProspect) {
+
+  console.error(
+    `Email sent to ${recipientEmail}, but no prospect row was updated.`
+  );
+
+  return res.status(500).json({
+    success: false,
+    message:
+      "Email was sent successfully, but this prospect was not found in the tracking list.",
+    messageId: messageId
+  });
+}
 
     console.log(
       `Outreach email sent from ${account.email} to ${recipientEmail}`
@@ -1089,82 +1106,57 @@ const html = `
 
 function formatCampaignBody(body) {
 
-  const escaped = escapeHtml(body)
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n");
+  let html = String(body || "").trim();
 
-  const paragraphs = escaped
-    .split(/\n\s*\n/)
-    .map(paragraph => paragraph.trim())
-    .filter(Boolean);
-
-  if (paragraphs.length === 0) {
+  if (!html) {
     return "";
   }
 
-  return paragraphs
-    .map(paragraph => {
+  /*
+   * Remove dangerous elements from pasted content.
+   */
 
-      const lines = paragraph
-        .split("\n")
-        .map(line => line.trim())
-        .filter(Boolean);
+  html = html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/\son\w+\s*=\s*"[^"]*"/gi, "")
+    .replace(/\son\w+\s*=\s*'[^']*'/gi, "")
+    .replace(/\s*javascript\s*:/gi, "");
 
-      /*
-       * Detect simple bullet-list sections.
-       */
+  /*
+   * Give normal paragraphs the same spacing
+   * as the existing Mercy email template.
+   */
 
-      if (
-        lines.length > 1 &&
-        lines.every(line => /^[•*-]\s+/.test(line))
-      ) {
+  html = html
+    .replace(
+      /<p(\s[^>]*)?>/gi,
+      '<p style="margin:0 0 24px 0;font-size:15px;line-height:1.8;color:#243447;">'
+    )
+    .replace(
+      /<div(\s[^>]*)?>/gi,
+      '<p style="margin:0 0 24px 0;font-size:15px;line-height:1.8;color:#243447;">'
+    )
+    .replace(
+      /<\/div>/gi,
+      "</p>"
+    );
 
-        const listItems = lines
-          .map(line =>
-            line.replace(/^[•*-]\s+/, "")
-          )
-          .map(item => `
-            <tr>
-              <td style="
-                padding:7px 0;
-                font-size:14px;
-                color:#4B5563;
-              ">
-                <span style="
-                  color:#00A8AB;
-                  font-weight:bold;
-                ">•</span>
-                &nbsp;${item}
-              </td>
-            </tr>
-          `)
-          .join("");
+  /*
+   * Keep unordered lists clean inside the email.
+   */
 
-        return `
-          <table
-            border="0"
-            cellpadding="0"
-            cellspacing="0"
-            width="100%"
-            style="margin:0 0 27px 0;"
-          >
-            ${listItems}
-          </table>
-        `;
-      }
+  html = html
+    .replace(
+      /<ul(\s[^>]*)?>/gi,
+      '<ul style="margin:0 0 24px 24px;padding:0;color:#243447;">'
+    )
+    .replace(
+      /<ol(\s[^>]*)?>/gi,
+      '<ol style="margin:0 0 24px 24px;padding:0;color:#243447;">'
+    );
 
-      return `
-        <p style="
-          margin:0 0 24px 0;
-          font-size:15px;
-          line-height:1.8;
-          color:#243447;
-        ">
-          ${lines.join("<br>")}
-        </p>
-      `;
-    })
-    .join("");
+  return html;
 }
 
 /*

@@ -328,3 +328,132 @@ select:focus {
     flex: 1;
   }
 }
+
+/* Email rich-text editor */
+
+.email-editor {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: white;
+  overflow: hidden;
+}
+
+.email-editor:focus-within {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(0, 168, 171, 0.1);
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: #fafbfc;
+}
+
+.format-btn {
+  width: 34px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dark);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.format-btn:hover {
+  background: #e9eef4;
+}
+
+.format-btn:active {
+  background: #dfe7ef;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 5px;
+}
+
+.color-tool {
+  position: relative;
+  width: 34px;
+  height: 32px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--dark);
+}
+
+.color-tool:hover {
+  background: #e9eef4;
+}
+
+.color-tool input[type="color"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.color-letter {
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--teal);
+  text-decoration-thickness: 3px;
+}
+
+.highlight-icon {
+  font-size: 17px;
+  font-weight: 700;
+  background: #fff2a8;
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+.body-editor {
+  min-height: 300px;
+  padding: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--dark);
+  outline: none;
+  overflow-y: auto;
+}
+
+.body-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.body-editor p {
+  margin: 0 0 18px;
+}
+
+.body-editor ul {
+  margin: 0 0 18px 24px;
+  padding: 0;
+}
+
+.body-editor li {
+  margin-bottom: 6px;
+}
+
+.body-editor a {
+  color: var(--teal);
+}
